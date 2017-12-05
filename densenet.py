@@ -1,6 +1,5 @@
 """
 DenseNet implementation in keras
-https://github.com/liuzhuang13/DenseNetCaffe
 """
 
 from typing import Union, Callable
@@ -36,7 +35,7 @@ class DenseNet(object):
         self.use_bias = kwargs.get('use_bias', False)
         self.dropout_rate = kwargs.get('dropout', 0)
 
-        self.layers_per_block = self.nb_blocks = self.nb_channels = self.growth_rate = None
+        self.nb_channels = self.growth_rate = None
 
     def Dense(self, units: int, activation: Union[str, Callable]):
         """
@@ -45,6 +44,7 @@ class DenseNet(object):
         :param activation: activation function, either a string or a function
         :return: Dense layer
         """
+
         def _Dense(x):
             return Dense(units,
                          activation=activation,
@@ -58,6 +58,7 @@ class DenseNet(object):
         wrap keras BatchNormalization
         :return: BatchNormalization layer
         """
+
         def _BatchNormalization(x):
             return BatchNormalization(
                 gamma_regularizer=l2(self.weight_decay),
@@ -72,6 +73,7 @@ class DenseNet(object):
         :param kernel_size: kernel size
         :return: Conv2D layer
         """
+
         def _Conv2D(x):
             return Conv2D(filters,
                           kernel_size,
@@ -99,13 +101,14 @@ class DenseNet(object):
             x = Dropout(self.dropout_rate)(x)
         return x
 
-    def apply_dense_block(self, x):
+    def apply_dense_block(self, x, nb_layers: int):
         """
         apply a dense block to input tensor x
         :param x: input tensor
+        :param nb_layers: number of layers in this block
         :return: output tensor
         """
-        for _ in range(self.layers_per_block):
+        for _ in range(nb_layers):
             conv = self.apply_bn_relu_conv(x, self.growth_rate, (3, 3))
             x = Concatenate()([x, conv])
             self.nb_channels += self.growth_rate
@@ -121,37 +124,32 @@ class DenseNet(object):
         x = AveragePooling2D()(x)
         return x
 
-    def apply_densenet(self,
-                       img_input,
-                       depth: int = 40,
-                       growth_rate: int = 12,
-                       nb_blocks: int = 3,
-                       nb_first_output: int = 16) -> Model:
+    def build(self,
+              growth_rate: int = 12,
+              block_config: tuple = (12, 12, 12),
+              nb_first_output: int = 16,
+              name='DenseNet') -> Model:
         """
-        apply a densenet to input tensor img_input
-        :param img_input: input tensor
-        :param depth: total depth of the densenet
+        build a densenet model
         :param growth_rate: growth rate (k)
-        :param nb_blocks: number of dense blocks in the network
+        :param block_config: number of layers in each dense block
         :param nb_first_output: output size of the first conv layer
-        :return: output tensor
+        :param name: model name
+        :return: model
         """
-        if (depth - 4) % nb_blocks:
-            raise ValueError(f'depth must be {nb_blocks} N + 4')
 
-        self.layers_per_block = int((depth - 4) / nb_blocks)
         self.nb_channels = nb_first_output
         self.growth_rate = growth_rate
+
+        img_input = Input(shape=self.input_shape)
 
         x = self.Conv2D(nb_first_output, (3, 3))(img_input)
 
         # dense blocks
-        for i in range(nb_blocks - 1):
-            x = self.apply_dense_block(x)
-            x = self.apply_transition(x)
-
-        # last dense block, no transition
-        x = self.apply_dense_block(x)
+        for i, nb_layer in enumerate(block_config):
+            x = self.apply_dense_block(x, nb_layer)
+            if i < len(block_config) - 1:  # no transition in the last dense block,
+                x = self.apply_transition(x)
 
         x = self.BatchNormalization()(x)
         x = Activation('relu')(x)
@@ -159,13 +157,48 @@ class DenseNet(object):
         x = GlobalAveragePooling2D()(x)
         x = self.Dense(self.classes, 'softmax')(x)
 
-        return x
+        return Model(inputs=img_input, outputs=x, name=name)
 
     def build40(self):
         """
-        build a densenet40 model
+        build a densenet-40 model
+        same as https://github.com/liuzhuang13/DenseNetCaffe
         :return: model
         """
-        img_input = Input(shape=self.input_shape)
-        x = self.apply_densenet(img_input)
-        return Model(inputs=img_input, outputs=x, name='DenseNet40')
+        return self.build()
+
+    def build22(self):
+        """
+        build a densenet-22 model
+        3 dense block, 6 conv layers in each block
+        :return: model
+        """
+        return self.build(block_config=(6, 6, 6))
+
+    def build121(self):
+        """
+        build a densenet-121 model
+        :return: model
+        """
+        return self.build(nb_first_output=64, growth_rate=32, block_config=(6, 12, 24, 16))
+
+    def build169(self):
+        """
+        build a densenet-169 model
+        :return: model
+        """
+        return self.build(nb_first_output=64, growth_rate=32, block_config=(6, 12, 32, 32))
+
+    def build201(self):
+        """
+        build a densenet-201 model
+        :return: model
+        """
+        return self.build(nb_first_output=64, growth_rate=32, block_config=(6, 12, 48, 32))
+
+    def build161(self):
+        """
+        build a densenet-161 model
+        :return: model
+         """
+        return self.build(nb_first_output=96, growth_rate=48, block_config=(6, 12, 32, 32))
