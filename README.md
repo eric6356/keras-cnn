@@ -11,10 +11,10 @@ keras implementation of several CNN models.
 }
 ```
 
-![](./assets/squeeze1.png)
+![](./assets/squeeze1.png)  
 **Figure 1:** Squeeze and expand filters in a fire module.
 
-![](./assets/squeeze2.png)
+![](./assets/squeeze2.png)  
 **Figure 2:** Fire module architecture. (from [Netscope](http://ethereon.github.io/netscope/quickstart.html))
 
 ### Training notes
@@ -29,10 +29,10 @@ In my dataset, SqueezeNet is super sensitive to learning rate, I'm using `Adam` 
   year={2017}
 }
 ```
-![](./assets/densenet1.png)
+![](./assets/densenet1.png)  
 **Figure 3:** A 5-layer dense block with a growth rate of `k = 4`.
 
-![](./assets/densenet2.png)
+![](./assets/densenet2.png)  
 **Figure 4:** A DenseNet with 4 dense blocks.
 
 ### Training nodes:

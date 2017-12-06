@@ -1,90 +1,26 @@
 """
 DenseNet implementation in keras
 """
-
-from typing import Union, Callable
+from typing import Union, Tuple
 
 from keras import Model, Input
-from keras.layers import Dense, GlobalAveragePooling2D, Activation, BatchNormalization, Conv2D, Dropout, Concatenate, \
-    AveragePooling2D
-from keras.regularizers import l2
+from keras.layers import GlobalAveragePooling2D, Activation, Concatenate, AveragePooling2D, Dropout, BatchNormalization
+
+from .net import BaseNet
 
 
-class DenseNet(object):
-    def __init__(self,
-                 input_shape: tuple = (176, 176, 3),
-                 classes: int = 80,
-                 **kwargs):
+class DenseNet(BaseNet):
+    def __init__(self, input_shape: tuple = (176, 176, 3), classes: int = 80, **kwargs):
         """
         DenseNet builder
         :param input_shape: input shape
         :param classes: number of output classes
-        :param kwargs:
-            weight_decay: l2 param applied in each layer, default 0.01
-            kernel_initializer: initializer applied in each layer, default 'he_uniform'
-            padding: padding strategy, default 'same'
-            use_bias: use bias in the conv layer, default False
-            dropout: drop out after each conv layer, default 0, no dropout
         """
-        self.input_shape = input_shape
-        self.classes = classes
-
-        self.weight_decay = kwargs.get('weight_decay', 0.01)
-        self.kernel_initializer = kwargs.get('kernel_initializer', 'he_uniform')
-        self.padding = kwargs.get('padding', 'same')
-        self.use_bias = kwargs.get('use_bias', False)
-        self.dropout_rate = kwargs.get('dropout', 0)
+        super().__init__(input_shape, classes, **kwargs)
 
         self.nb_channels = self.growth_rate = None
 
-    def Dense(self, units: int, activation: Union[str, Callable]):
-        """
-        wrap keras Dense
-        :param units: number of output size
-        :param activation: activation function, either a string or a function
-        :return: Dense layer
-        """
-
-        def _Dense(x):
-            return Dense(units,
-                         activation=activation,
-                         kernel_regularizer=l2(self.weight_decay),
-                         bias_regularizer=l2(self.weight_decay))(x)
-
-        return _Dense
-
-    def BatchNormalization(self):
-        """
-        wrap keras BatchNormalization
-        :return: BatchNormalization layer
-        """
-
-        def _BatchNormalization(x):
-            return BatchNormalization(
-                gamma_regularizer=l2(self.weight_decay),
-                beta_regularizer=l2(self.weight_decay))(x)
-
-        return _BatchNormalization
-
-    def Conv2D(self, filters: int, kernel_size: tuple):
-        """
-        wrap keras Conv2D
-        :param filters: number of filters
-        :param kernel_size: kernel size
-        :return: Conv2D layer
-        """
-
-        def _Conv2D(x):
-            return Conv2D(filters,
-                          kernel_size,
-                          kernel_initializer=self.kernel_initializer,
-                          kernel_regularizer=l2(self.weight_decay),
-                          padding=self.padding,
-                          use_bias=self.use_bias)(x)
-
-        return _Conv2D
-
-    def apply_bn_relu_conv(self, x, nb_filters: int, kernel_size: tuple):
+    def apply_bn_relu_conv(self, x, nb_filters: int, kernel_size: Union[int, Tuple[int, int]]):
         """
         apply a BN -> ReLU -> CONV block to tensor x
         Original implementation: BN -> Scale -> ReLU -> CONV
@@ -143,7 +79,7 @@ class DenseNet(object):
 
         img_input = Input(shape=self.input_shape)
 
-        x = self.Conv2D(nb_first_output, (3, 3))(img_input)
+        x = self.Conv2D(nb_first_output, 3)(img_input)
 
         # dense blocks
         for i, nb_layer in enumerate(block_config):
