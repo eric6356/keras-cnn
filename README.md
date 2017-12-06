@@ -1,10 +1,11 @@
 # keras-cnn
 keras implementation of several CNN models.
-- [1.  [SqueezeNet](https://github.com/DeepScale/SqueezeNet/tree/master/SqueezeNet_v1.1)](#1-squeezenethttpsgithubcomdeepscalesqueezenettreemastersqueezenetv11)
-- [2. [DenseNet](https://github.com/liuzhuang13/DenseNet)](#2-densenethttpsgithubcomliuzhuang13densenet)
-- [3. [ResNet](https://github.com/KaimingHe/deep-residual-networks)](#3-resnethttpsgithubcomkaiminghedeep-residual-networks)
+1. [SqueezeNet](#squeezenet)
+2. [DenseNet](#densenet)
+3. [ResNet](#resnet)
 
-## 1.  [SqueezeNet](https://github.com/DeepScale/SqueezeNet/tree/master/SqueezeNet_v1.1)
+## SqueezeNet
+[https://github.com/DeepScale/SqueezeNet/tree/master/SqueezeNet_v1.1](https://github.com/DeepScale/SqueezeNet/tree/master/SqueezeNet_v1.1)
 ```
 @article{SqueezeNet,
     Author = {Forrest N. Iandola and Song Han and Matthew W. Moskewicz and Khalid Ashraf and William J. Dally and Kurt Keutzer},
@@ -23,7 +24,8 @@ keras implementation of several CNN models.
 ### Training notes
 In my dataset, SqueezeNet is super sensitive to learning rate, I'm using `Adam` optimizer and `lr=0.0003` is a good point to start with.
 
-## 2. [DenseNet](https://github.com/liuzhuang13/DenseNet)
+## DenseNet
+[https://github.com/liuzhuang13/DenseNet](https://github.com/liuzhuang13/DenseNet)
 ```
 @inproceedings{huang2017densely,
   title={Densely connected convolutional networks},
@@ -42,7 +44,8 @@ In my dataset, SqueezeNet is super sensitive to learning rate, I'm using `Adam` 
 I'm using `Tensorflow` backend and the `tf.concate` will [allocate new memory for output](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/kernels/concat_op.cc#L130) which is widely used in the Densenet. This cause the huge GPU memory usage while training a DenseNet model.
 
 
-## 3. [ResNet](https://github.com/KaimingHe/deep-residual-networks)
+## ResNet
+[https://github.com/KaimingHe/deep-residual-networks](https://github.com/KaimingHe/deep-residual-networks)
 ```
 @article{He2015,
   author = {Kaiming He and Xiangyu Zhang and Shaoqing Ren and Jian Sun},
