@@ -66,3 +66,6 @@ I'm using `Tensorflow` backend and the `tf.concate` will [allocate new memory fo
 
 ![](./assets/resnet2.png)  
 **Figure 6.** Original residual block and the 2016 proposed one.
+
+## License
+[MIT](https://opensource.org/licenses/MIT)
