@@ -1,5 +1,5 @@
 """
-DenseNet implementation in keras
+ResNet implementation in keras
 https://arxiv.org/abs/1512.03385
 https://arxiv.org/abs/1603.05027
 """
