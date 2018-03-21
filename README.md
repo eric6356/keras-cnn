@@ -41,7 +41,7 @@ In my dataset, SqueezeNet is super sensitive to learning rate, I'm using `Adam` 
 **Figure 4:** A DenseNet with 4 dense blocks.
 
 ### Training nodes:
-I'm using `Tensorflow` backend and the `tf.concate` will [allocate new memory for output](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/kernels/concat_op.cc#L130) which is widely used in the Densenet. This cause the huge GPU memory usage while training a DenseNet model.
+~~I'm using `Tensorflow` backend and the `tf.concate` will [allocate new memory for output](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/kernels/concat_op.cc#L130) which is widely used in the Densenet. This cause the huge GPU memory usage while training a DenseNet model.~~
 
 
 ## ResNet
